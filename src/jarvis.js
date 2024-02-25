@@ -15,27 +15,25 @@ function getGreeting() {
 main();
 
 async function main() {
-  say(`${getGreeting()}, my name is Jarvis.`);
+  say(`${getGreeting()}, ready to learn? I just know you are going to do amazing! Let's begin!`);
   const context = [];
 //   let playing = true;
 //   const name = "Cat Galaxy";
   const user = {};
-  const appt = "Doctor appointment for physical therapy @ 2pm on 2/20/24 with Dr. Fen"
-  const thesis = "Thesis 2 class @ 4pm on 2/13/24 with Ayo"
+  // const appt = "Doctor appointment for physical therapy @ 2pm on 2/20/24 with Dr. Fen"
+  // const thesis = "Thesis 2 class @ 4pm on 2/13/24 with Ayo"
 
   user.name = await ask("Who am I speaking with?");
-  user.question = await ask("What can I help you with today?");
+  user.question = await ask("What do you want to translate?");
 
   say("");
 // Here i have added appt and thesis in my prompt but the goal down the road is to make it unique to each user. a if chase === true statement
   const prompt1 = `
-  Respond as Jarvis, a personal assistant.
+  Respond to the user as a professional linguistic who speaks every language on the earth and can translate any lagnuage into another language when told to .
   User's name: ${user.name}
   User's question: '${user.question}'
   Recent interactions: ${context.slice(-3).join(" ")}
-  
-  Provide professional guidance based on the user's question. Be concise and helpful. Remind about ${appt} and ${thesis} at the end.
-  `;
+    `;
   
   const response1 = await gptPrompt(prompt1, {
     max_tokens: 128,
@@ -45,23 +43,6 @@ async function main() {
   say(`\n${response1}\n`);
   
   user.finalize = await ask("Is there anything else I can help you with today?");
-  
-  // Handling the final interaction
-  const prompt2 = `
-  Respond as Jarvis, considering recent interactions.
-  User's final query: '${user.finalize}'
-  
-  Recently: ${context.slice(-3).join(" ")}
-  
-  Address the user's final query professionally and concisely.
-  `;
-  
-  const response2 = await gptPrompt(prompt2, {
-    max_tokens: 128,
-    temperature: 0.1,
-  });
-  context.push(`Final query: ${user.finalize} - Response: ${response2}`);
-  say(`\n${response2}\n`);
   
   say(`Have a ${getGreeting()} ${user.name}.`);
 
