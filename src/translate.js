@@ -1,3 +1,5 @@
+// Used GPT for some support 
+
 import { gptPrompt } from "./shared/openai.js";
 import { ask, say } from "./shared/cli.js";
 
@@ -40,6 +42,14 @@ const translations = {
     'en': 'exit',
     'zh': '退出'
 },
+'look': {
+    'en': 'look',
+    'zh': '看'
+},
+'touch': {
+    'en': 'touch',
+    'zh': '触摸'
+}
   // Add other translations as needed
 };
 
@@ -84,10 +94,11 @@ async function main() {
   const user = {}; // Currently unused but can be utilized for personalized interactions.
 
   // Iterate through each level of the dungeon
+    // GPT support here 
   for (const level of levels) {
       let levelCompleted = false;
       while (!levelCompleted) {
-          const translatedDescription = level.description.replace(/\b(jump|ask|exit|spell|cross|echo|freeze|knowledge)\b/g, match => translations[match][chosenLanguage]);
+          const translatedDescription = level.description.replace(/\b(jump|ask|look|touch|exit|spell|cross|echo|freeze|knowledge)\b/g, match => translations[match][chosenLanguage]);
           const action = await ask(`${translatedDescription} (Type your action or '${translations['exit'][chosenLanguage]}' to give up):`);
 
           if (action.toLowerCase() === 'exit') {
@@ -100,7 +111,7 @@ async function main() {
               say("You successfully navigate the challenge and move to the next level!");
               levelCompleted = true;
           } else {
-              const translatedFailureMessage = level.failureMessage.replace(/\b(jump|ask|exit|spell|cross|echo|freeze|knowledge)\b/g, match => translations[match][chosenLanguage]);
+              const translatedFailureMessage = level.failureMessage.replace(/\b(jump|ask|look|touch|exit|spell|cross|echo|freeze|knowledge)\b/g, match => translations[match][chosenLanguage]);
               say(`${translatedFailureMessage} Try again.`);
           }
       }
