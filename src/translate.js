@@ -49,6 +49,10 @@ const translations = {
   'touch': {
     'en': 'Touch',
     'zh': '触摸'
+  },
+  'attack': {
+    'en': 'Attack',
+    'zh': '攻击'
   }
   // Add other translations as needed
 };
