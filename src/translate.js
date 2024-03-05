@@ -77,7 +77,7 @@ const levels = [
     },
     {
         description: "On the fifth floor, you find a room filled with statues. One of them holds a key in its hand, but as soon as you enter, the statues come to life. How do you stop them?",
-        correctAction: "freeze",
+        correctAction: "attack",
         failureMessage: "The statues continue their advance. There must be a way to stop them in their tracks."
     },
     {
@@ -112,7 +112,7 @@ async function main() {
       // Use the level description directly as it does not need translation here.
       const message = level.description; // The original level descriptions are in English.
       
-      const actions = ['jump', 'ask', 'look', 'touch', 'spell', 'cross', 'echo', 'freeze', 'knowledge', 'exit'].map(action => ({
+      const actions = ['jump', 'ask', 'look', 'touch', 'attack', 'spell', 'cross', 'echo', 'freeze', 'knowledge', 'exit'].map(action => ({
           name: translations[action][chosenLanguage],
           value: action
       }));
