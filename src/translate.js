@@ -1,6 +1,14 @@
+
+// Langify
+
 import { gptPrompt } from "./shared/openai.js";
 import { ask, say } from "./shared/cli.js";
 import select, { Separator } from '@inquirer/select';
+import chalk from 'chalk';
+console.log(chalk.blue('Hello world!'));
+
+const log = console.log;
+
 
 // Function that pulls the time and inserts it into the intro greeting.
 function getGreeting() {
@@ -11,48 +19,114 @@ function getGreeting() {
 // Translations for the different parts of the game
 const translations = {
   'jump': {
-      'en': 'Jump',
-      'zh': '跳'
+    'en': 'Jump',
+    'zh': '跳',
+    'de': 'Springen',
+    'ja': 'ジャンプ',
+    'ko': '점프',
+    'fr': 'Sauter',
+    'sv': 'Hoppa',
+    'pl': 'Skakać'
   },
   'spell': {
-      'en': 'Spell',
-      'zh': '咒语'
+    'en': 'Spell',
+    'zh': '咒语',
+    'de': 'Zauberspruch',
+    'ja': '呪文',
+    'ko': '주문',
+    'fr': 'Épeler',
+    'sv': 'Stava',
+    'pl': 'Zaklęcie'
   },
   'cross': {
-      'en': 'Cross',
-      'zh': '过'
+    'en': 'Cross',
+    'zh': '过',
+    'de': 'Kreuz',
+    'ja': 'クロス',
+    'ko': '가로지르다',
+    'fr': 'Traverser',
+    'sv': 'Korsa',
+    'pl': 'Przekroczyć'
   },
   'echo': {
-      'en': 'Echo',
-      'zh': '回声'
+    'en': 'Echo',
+    'zh': '回声',
+    'de': 'Echo',
+    'ja': 'エコー',
+    'ko': '메아리',
+    'fr': 'Écho',
+    'sv': 'Eko',
+    'pl': 'Echo'
   },
   'freeze': {
-      'en': 'Freeze',
-      'zh': '冻结'
+    'en': 'Freeze',
+    'zh': '冻结',
+    'de': 'Einfrieren',
+    'ja': 'フリーズ',
+    'ko': '얼다',
+    'fr': 'Geler',
+    'sv': 'Frysa',
+    'pl': 'Zamrozić'
   },
   'knowledge': {
-      'en': 'Knowledge',
-      'zh': '知识'
+    'en': 'Knowledge',
+    'zh': '知识',
+    'de': 'Wissen',
+    'ja': '知識',
+    'ko': '지식',
+    'fr': 'Connaissance',
+    'sv': 'Kunskap',
+    'pl': 'Wiedza'
   },
   'ask': {
     'en': 'Ask',
-    'zh': '询问'
+    'zh': '询问',
+    'de': 'Fragen',
+    'ja': '尋ねる',
+    'ko': '묻다',
+    'fr': 'Demander',
+    'sv': 'Fråga',
+    'pl': 'Pytać'
   },
   'exit': {
     'en': 'Exit',
-    'zh': '退出'
+    'zh': '退出',
+    'de': 'Ausgang',
+    'ja': '出口',
+    'ko': '출구',
+    'fr': 'Sortie',
+    'sv': 'Utgång',
+    'pl': 'Wyjście'
   },
   'look': {
     'en': 'Look',
-    'zh': '看'
+    'zh': '看',
+    'de': 'Schauen',
+    'ja': '見る',
+    'ko': '보다',
+    'fr': 'Regarder',
+    'sv': 'Titta',
+    'pl': 'Patrzeć'
   },
   'touch': {
     'en': 'Touch',
-    'zh': '触摸'
+    'zh': '触摸',
+    'de': 'Berühren',
+    'ja': '触れる',
+    'ko': '만지다',
+    'fr': 'Toucher',
+    'sv': 'Röra',
+    'pl': 'Dotykać'
   },
   'attack': {
     'en': 'Attack',
-    'zh': '攻击'
+    'zh': '攻击',
+    'de': 'Angreifen',
+    'ja': '攻撃',
+    'ko': '공격',
+    'fr': 'Attaquer',
+    'sv': 'Attackera',
+    'pl': 'Atakować'
   }
   // Add other translations as needed
 };
@@ -60,9 +134,9 @@ const translations = {
 // Define dungeon levels
 const levels = [
     {
-        description: "You enter the first floor looking around when all of a sudden a horde of enemies swarms you. Above you, a sword and shield appear. What action must you take to grab the gear?",
-        correctAction: "jump",
-        failureMessage: "The enemies laugh at your politeness. The gear remains out of reach."
+    description: `You enter the first floor looking around when all of a sudden a ${chalk.red('horde of enemies')} swarms you. Above you, a ${chalk.green('sword and shield')} appear. What action must you take to grab the gear?`,
+    correctAction: "jump",
+    failureMessage: `The ${chalk.red('enemies')} laugh at your politeness. The gear remains out of reach.`
     },
     {
         description: "You advance to the second floor, finding a dark room filled with mysterious symbols. In the center lies a glowing orb. How do you proceed to safely retrieve it?",
@@ -92,11 +166,37 @@ const levels = [
 ];
 
 async function main() {
+  const context = [];
+//   let playing = true;
+//   const name = "Cat Galaxy";
+  const user = {};
+  user.question = await ask("What dungeon would you like to explore today fare traveler?");
+
+  say("");
+
+  // Here i have added appt and thesis in my prompt but the goal down the road is to make it unique to each user. a if chase === true statement
+  const prompt1 = `
+  Respond as a professional storyteller. keep it at two paragraphs tops
+  User's question: '${user.question}'
+  Recent interactions: ${context.slice(-3).join(" ")}  `;
+  
+  const response1 = await gptPrompt(prompt1, {
+    max_tokens: 128,
+    temperature: 0.1,
+  });
+  context.push(`Question: ${user.question} - Response: ${response1}`);
+  say(`\n${response1}\n`);
   const chosenLanguage = await select({
     message: 'Choose your language:',
     choices: [
       { name: 'English', value: 'en' },
       { name: '中文', value: 'zh' },
+      { name: 'Deutsch', value: 'de' },
+      { name: '日本語', value: 'ja' },
+      { name: '한국어', value: 'ko' },
+      { name: 'Français', value: 'fr' },
+      { name: 'Svenska', value: 'sv' },
+      { name: 'Polski', value: 'pl' },
       new Separator(),
       { name: 'Exit Game', value: 'exit' }
     ],
@@ -107,7 +207,7 @@ async function main() {
     return; // Exit the entire adventure
   }
 
-  say(`${getGreeting()}, Are you ready to enter the tunnel and fight your way through countless foes to recover the treasure? Your quest has begun!`);
+  // say(`${getGreeting()}, Are you ready to enter the tunnel and fight your way through countless foes to recover the treasure? Your quest has begun!`);
 
   // Iterate through each level of the dungeon
   for (const level of levels) {
