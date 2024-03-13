@@ -10,7 +10,7 @@ const env = await load({ envPath: `${__dirname}/../.env` });
 // ! if apiKey is undefined, `new OpenAI` constructor will try to find
 // ! an environment variable called OPENAI_API_KEY
 const openai = new OpenAI({
-  apiKey: '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',
+  apiKey: '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',
 });
 
 const models = {
