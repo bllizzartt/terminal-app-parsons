@@ -6,6 +6,8 @@ import { ask, say } from "./shared/cli.js";
 import select, { Separator } from '@inquirer/select';
 import chalk from 'chalk';
 console.log(chalk.blue('Hello world!'));
+import inquirer from 'inquirer';
+
 
 const log = console.log;
 
@@ -165,18 +167,62 @@ const levels = [
     }
 ];
 
+function displaySeparator() {
+  console.log('\n\n========================================\n\n');
+}
+
+// Main function to run the game
 async function main() {
-  const context = [];
-//   let playing = true;
-//   const name = "Cat Galaxy";
   const user = {};
-  user.question = await ask("What dungeon would you like to explore today fare traveler?");
+  const context = [];
+  // Language selection process
+  console.log("Before language selection");
+  const languageAnswers = await inquirer.prompt([
+      {
+          type: 'list',
+          name: 'language',
+          message: 'Choose your language:',
+          choices: ['English', '中文', 'Deutsch', '日本語', '한국어', 'Français', 'Svenska', 'Polski'],
+      },
+  ]);
+  const chosenLanguage = languageAnswers.language;
+  console.log("After language selection:", chosenLanguage);
 
-  say("");
+  // Map readable language choices to language codes
+  const languageCodes = {
+      'English': 'en',
+      '中文': 'zh',
+      'Deutsch': 'de',
+      '日本語': 'ja',
+      '한국어': 'ko',
+      'Français': 'fr',
+      'Svenska': 'sv',
+      'Polski': 'pl'
+  };
+  const languageCode = languageCodes[chosenLanguage];
 
-  // Here i have added appt and thesis in my prompt but the goal down the road is to make it unique to each user. a if chase === true statement
+  // Dungeon choice
+  const chosenDungeon = await select({
+    message: 'Choose the dungeon you wish to explore:',
+    choices: [
+        { name: 'Red Dungeon', value: 'red' },
+        { name: 'Blue Dungeon', value: 'blue' },
+        new Separator(),
+        { name: 'Exit Game', value: 'exit' }
+    ],
+  });
+
+  if (chosenDungeon === 'exit') {
+    say("Exiting the adventure. Have a great day!");
+    return; // Exit the entire adventure
+  }
+
+  // Here you can handle the chosen dungeon logic
+  // For example, adjusting your storytelling based on the chosen dungeon
+  user.question = `Explore ${chosenDungeon} Dungeon`; // This sets up your story based on dungeon choice
+
   const prompt1 = `
-  Respond as a professional storyteller. keep it at two paragraphs tops
+  Respond as a professional storyteller. keep it at one word for testing right now
   User's question: '${user.question}'
   Recent interactions: ${context.slice(-3).join(" ")}  `;
   
@@ -184,65 +230,49 @@ async function main() {
     max_tokens: 128,
     temperature: 0.1,
   });
-  context.push(`Question: ${user.question} - Response: ${response1}`);
+
+  // Output the response or incorporate it into your game narrative
   say(`\n${response1}\n`);
-  const chosenLanguage = await select({
-    message: 'Choose your language:',
-    choices: [
-      { name: 'English', value: 'en' },
-      { name: '中文', value: 'zh' },
-      { name: 'Deutsch', value: 'de' },
-      { name: '日本語', value: 'ja' },
-      { name: '한국어', value: 'ko' },
-      { name: 'Français', value: 'fr' },
-      { name: 'Svenska', value: 'sv' },
-      { name: 'Polski', value: 'pl' },
-      new Separator(),
-      { name: 'Exit Game', value: 'exit' }
-    ],
-  });
-
-  if (chosenLanguage === 'exit') {
-    say("Exiting the adventure. Have a great day!");
-    return; // Exit the entire adventure
-  }
-
-  // say(`${getGreeting()}, Are you ready to enter the tunnel and fight your way through countless foes to recover the treasure? Your quest has begun!`);
 
   // Iterate through each level of the dungeon
   for (const level of levels) {
-    let levelCompleted = false;
-    while (!levelCompleted) {
-      // Use the level description directly as it does not need translation here.
-      const message = level.description; // The original level descriptions are in English.
-      
-      const actions = ['jump', 'ask', 'look', 'touch', 'attack', 'spell', 'cross', 'echo', 'freeze', 'knowledge', 'exit'].map(action => ({
-          name: translations[action][chosenLanguage],
-          value: action
-      }));
-      const action = await select({
-          message: message,
-          choices: actions
-      });
+      let levelCompleted = false;
+      while (!levelCompleted) {
+          displaySeparator();  // Display a separator for clarity
+          const message = level.description;  // Use the level's description
+          const actions = ['jump', 'ask', 'look', 'touch', 'attack', 'spell', 'cross', 'echo', 'freeze', 'knowledge', 'exit'].map(action => ({
+              name: translations[action][languageCode],  // Translate actions based on chosen language
+              value: action
+          }));
 
-      if (action === 'exit') {
-          say("Exiting the adventure. Have a great day!");
-          return; // Exit the current level and eventually the adventure
-      }
+          // Display the level challenge and ask for user's action
+          const action = await inquirer.prompt([
+              {
+                  type: 'list',
+                  name: 'selectedAction',
+                  message: message,
+                  choices: actions
+              },
+          ]);
 
-      if (action === level.correctAction) {
-          say("You successfully navigate the challenge and move to the next level!");
-          levelCompleted = true;
-      } else {
-          // Use the level failure message directly as it does not need translation here.
-          const failureMessage = level.failureMessage; // The original failure messages are in English.
-          say(`${failureMessage} Try again.`);
+          if (action.selectedAction === 'exit') {
+              say("Exiting the adventure. Have a great day!");
+              return;  // Exit the current level and eventually the adventure
+          }
+
+          if (action.selectedAction === level.correctAction) {
+              say("You successfully navigate the challenge and move to the next level!");
+              levelCompleted = true;
+          } else {
+              // Display failure message and prompt user to try again
+              const failureMessage = level.failureMessage;  // Use the level's failure message
+              say(`${failureMessage} Try again.`);
+          }
       }
-    }
-    say(""); // Add a space for readability between levels
+      say("");  // Add a space for readability between levels
   }
 
+  // Display final congratulatory message upon completing all levels
   say(`Congratulations Traveler, you've completed the adventure! Have a ${getGreeting()}!`);
 }
-
 main();
