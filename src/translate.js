@@ -222,7 +222,7 @@ async function main() {
   user.question = `Explore ${chosenDungeon} Dungeon`; // This sets up your story based on dungeon choice
 
   const prompt1 = `
-  Respond as a professional storyteller. keep it at one word for testing right now
+  Respond as a professional storyteller. keep it at one paragraph. talk about the environment and history of it
   User's question: '${user.question}'
   Recent interactions: ${context.slice(-3).join(" ")}  `;
   
